@@ -1,0 +1,105 @@
+<!doctype html>
+<html lang="de">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>El Salvador – Druckkarte (A2)</title>
+
+  <!-- Leaflet (CDN) -->
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" crossorigin=""/>
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" crossorigin=""></script>
+
+  <style>
+    html, body { margin:0; padding:0; height:100%; font-family: Arial, sans-serif; }
+
+    /* ====== Bildschirm: Vollbild ====== */
+    #map { width:100%; height:100%; }
+
+    /* Overlay-Boxen (Titel, Nordpfeil) */
+    .overlay {
+      position: absolute;
+      z-index: 9999;
+      background: rgba(255,255,255,0.92);
+      padding: 10px 12px;
+      border-radius: 12px;
+      box-shadow: 0 2px 10px rgba(0,0,0,.18);
+    }
+
+    #titleBox { top: 16px; left: 16px; }
+    #titleBox h1 { margin:0; font-size:18px; }
+    #titleBox .sub { margin-top:4px; font-size:12px; opacity:0.85; }
+
+    #northBox { top: 16px; right: 16px; text-align:center; width:54px; }
+    #northBox .arrow { font-size:22px; line-height:1; }
+    #northBox .n { font-size:12px; font-weight:700; margin-top:2px; }
+
+    /* ====== DRUCK: A2 ====== */
+    @page {
+      size: A2 landscape;   /* alternativ: A2 portrait */
+      margin: 10mm;
+    }
+
+    @media print {
+      html, body { height: auto; }
+
+      /* Karte soll die Seite füllen */
+      #map { height: calc(100vh - 0px); }
+
+      /* Leaflet-Controls beim Druck ausblenden */
+      .leaflet-control-container { display: none !important; }
+
+      /* Overlay-Boxen beim Druck sichtbar lassen */
+      .overlay { box-shadow: none; border: 1px solid #ddd; }
+
+      /* Verhindert abgeschnittene Farben in manchen Browsern */
+      * { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+    }
+  </style>
+</head>
+
+<body>
+  <div id="map"></div>
+
+  <!-- Titel / Info (druckt mit) -->
+  <div id="titleBox" class="overlay">
+    <h1>El Salvador</h1>
+    <div class="sub">Druckkarte (A2) – interaktive Version per QR-Code auf dem Plakat</div>
+  </div>
+
+  <!-- Nordpfeil (druckt mit) -->
+  <div id="northBox" class="overlay">
+    <div class="arrow">⬆︎</div>
+    <div class="n">N</div>
+  </div>
+
+  <script>
+    // ====== FIXER Ausschnitt für Druck ======
+    // Bounds für El Salvador (damit immer alles gut im Bild ist)
+    const elSalvadorBounds = L.latLngBounds(
+      [13.15, -90.15], // Südwest
+      [14.45, -87.65]  // Nordost
+    );
+
+    const map = L.map("map", {
+      zoomControl: false,      // für Druck lieber aus
+      attributionControl: false
+    });
+
+    // Basiskarte
+    L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
+      maxZoom: 19,
+      attribution: "&copy; OpenStreetMap-Mitwirkende"
+    }).addTo(map);
+
+    // Auf Bounds zoomen (passt sich ans Fenster an)
+    map.fitBounds(elSalvadorBounds, { padding: [20, 20] });
+
+    // Maßstab (nur am Bildschirm sichtbar; Druck blendet Controls aus)
+    L.control.scale({ imperial: false, position: "bottomleft" }).addTo(map);
+
+    // Optional: Wenn du die Karte für Druck „ruhig“ willst (kein Scroll-Zoom)
+    map.scrollWheelZoom.disable();
+    map.doubleClickZoom.disable();
+  </script>
+</body>
+</html>

@@ -1,0 +1,63 @@
+<!doctype html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<title>El Salvador – Druckkarte A2 Querformat</title>
+
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+
+<style>
+html, body {
+  margin: 0;
+  padding: 0;
+  height: 100%;
+  font-family: Arial, sans-serif;
+}
+
+#map {
+  width: 100%;
+  height: 100%;
+}
+
+/* ===== DRUCK ===== */
+@page {
+  size: A2 landscape;
+  margin: 10mm;
+}
+
+@media print {
+  .leaflet-control-container {
+    display: none !important;
+  }
+  * {
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
+  }
+}
+</style>
+</head>
+
+<body>
+<div id="map"></div>
+
+<script>
+const boundsElSalvador = L.latLngBounds(
+  [13.15, -90.15], // Südwest
+  [14.45, -87.65]  // Nordost
+);
+
+const map = L.map("map", {
+  zoomControl: false,
+  attributionControl: false
+});
+
+L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
+  maxZoom: 19,
+  attribution: "&copy; OpenStreetMap"
+}).addTo(map);
+
+map.fitBounds(boundsElSalvador, { padding: [30, 30] });
+</script>
+</body>
+</html>
