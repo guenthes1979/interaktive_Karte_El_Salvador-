@@ -65,42 +65,54 @@
 <body>
 <div id="map"></div>
 
-<div id="debugBox" style="
-  position:fixed; left:10px; bottom:10px; z-index:99999;
-  background:rgba(255,255,255,.95); padding:10px 12px; border-radius:10px;
-  box-shadow:0 2px 10px rgba(0,0,0,.25); font:12px/1.35 Arial;
-  max-width: 360px;">
-  <b>Debug</b><div id="debugText">Seite geladen…</div>
-</div>
-
-
 <script>
   function dbg(msg){
   const el = document.getElementById("debugText");
   if (el) el.innerHTML += "<br>• " + msg;
 }
 
-// Zeigt JS-Fehler direkt im Debug-Feld (ohne Konsole)
-window.addEventListener("error", (e) => {
-  dbg("❌ JS Fehler: " + (e.message || e.error));
-});
-window.addEventListener("unhandledrejection", (e) => {
-  dbg("❌ Promise Fehler: " + (e.reason?.message || e.reason));
-});
-
-dbg("✅ Script gestartet");
-
-
-
   // ================= KARTE =================
   const map = L.map("map").fitBounds([[13.0,-90.2],[14.5,-87.6]]);
   
-  dbg("✅ map erstellt");
+  const map = L.map("map").setView([13.8, -88.9], 8);
+	L.tileLayer(...).addTo(map);
 
-  L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
-    attribution:"© OpenStreetMap",
-    maxZoom: 19
-  }).addTo(map);
+
+	  L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
+		attribution:"© OpenStreetMap",
+		maxZoom: 19
+	  }).addTo(map);
+	  
+	  // ===== LEGEND =========
+const legend = L.control({ position: "topright" });
+
+legend.onAdd = function () {
+  const div = L.DomUtil.create("div");
+  div.style.background = "white";
+  div.style.padding = "10px";
+  div.style.borderRadius = "10px";
+  div.style.boxShadow = "0 2px 8px rgba(0,0,0,.2)";
+  div.style.fontSize = "13px";
+  div.style.lineHeight = "1.35";
+  div.style.maxWidth = "220px";
+  div.style.zIndex = "99999";
+
+  div.innerHTML = `
+    <b>Legende</b><br>
+    🏙️ Städte<br>
+    🏛️ Sehenswürdigkeiten<br>
+    🌿 Natur / Parks / Vulkane<br>
+    🏖️ Strände<br>
+    ❗ Besondere Orte<br>
+    <hr style="border:none;border-top:1px solid #eee;margin:8px 0;">
+    <span style="border-top:3px solid #1f6feb;display:inline-block;width:30px"></span> Hauptfluss<br>
+    <span style="border-top:2px solid #6ea8ff;display:inline-block;width:30px"></span> Weitere Flüsse
+  `;
+  return div;
+};
+
+legend.addTo(map);
+
 
 // =================== LAYER GRUNDLAGEN ===================
 const layerStaedte = window.layerStaedte || L.layerGroup().addTo(map);
@@ -576,42 +588,6 @@ nebenfluesse.forEach(fluss => {
   "❗ Besondere Orte": layerBesondereOrte,
   "🟦 Flüsse": layerFluesse
 }, { collapsed: false }).addTo(map);
-
-
-
-
-  // ================= LEGENDE =================
-const legend = L.control({ position: "topright" });
-legend.onAdd = function () {
-  const div = L.DomUtil.create("div", "legend");
-  div.style.background = "white";
-  div.style.padding = "10px";
-  div.style.borderRadius = "10px";
-  div.style.boxShadow = "0 2px 8px rgba(0,0,0,.2)";
-  div.style.fontSize = "13px";
-  div.style.lineHeight = "1.35";
-  div.style.position = "relative";
-  div.style.zIndex = "9999";
-
-  div.innerHTML = `
-    <b>Legende</b><br>
-    🏙️ Städte (Bilder)<br>
-    🏛️ Sehenswürdigkeiten (Bilder)<br>
-    🌿 Natur / Parks / Vulkane<br>
-    🏖️ Strände<br>
-    ❗ Besondere Orte<br>
-    <hr style="border:none;border-top:1px solid #eee;margin:8px 0;">
-    <span style="border-top:3px solid #1f6feb;display:inline-block;width:30px"></span> Hauptfluss<br>
-    <span style="border-top:2px solid #6ea8ff;display:inline-block;width:30px"></span> Weitere Flüsse
-  `;
-  return div;
-};
-legend.addTo(map);
-
-console.log("Legende wird hinzugefügt");
-
-legend.addTo(map);
-
 
 </script>
 </body>
