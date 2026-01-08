@@ -60,10 +60,48 @@
     };
     legend.addTo(map);
 
-// ✅ erzwinge Sichtbarkeit (falls CSS sie versteckt)
-const c = legend.getContainer();
-c.style.display = "block";
-c.style.zIndex = "999999";
+	// ✅ erzwinge Sichtbarkeit (falls CSS sie versteckt)
+	const c = legend.getContainer();
+	c.style.display = "block";
+	c.style.zIndex = "999999";
+
+// ================= FLÜSSE =================
+const layerFluesse = L.layerGroup().addTo(map);
+
+fetch(new URL("data/rivers.geojson", document.baseURI), { cache: "no-store" })
+  .then(response => {
+    if (!response.ok) {
+      throw new Error("HTTP " + response.status);
+    }
+    return response.json();
+  })
+  .then(data => {
+    console.log("Flüsse geladen:", data.features.length);
+
+    L.geoJSON(data, {
+      style: function (feature) {
+        // Haupt- vs Nebenflüsse (falls Attribut vorhanden)
+        const type = feature.properties?.waterway || "";
+        return {
+          color: "#1f6feb",
+          weight: type === "river" ? 2.5 : 1.2,
+          opacity: 0.9
+        };
+      },
+      onEachFeature: function (feature, layer) {
+        if (feature.properties && feature.properties.name) {
+          layer.bindTooltip(
+            feature.properties.name,
+            { permanent: false, direction: "center" }
+          );
+        }
+      }
+    }).addTo(layerFluesse);
+  })
+  .catch(err => {
+    alert("❌ Flüsse konnten nicht geladen werden: " + err.message);
+  });
+
 
   </script>
 </body>
