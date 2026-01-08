@@ -23,15 +23,10 @@
   font-size:10px;
   font-weight:700;
   color:#2b6cb0;
-  text-shadow:
-    -1px -1px 0 #fff,
-     1px -1px 0 #fff,
-    -1px  1px 0 #fff,
-     1px  1px 0 #fff;
+  text-shadow: -1px -1px 0 #fff, 1px -1px 0 #fff, -1px 1px 0 #fff, 1px 1px 0 #fff;
   white-space:nowrap;
   pointer-events:none;
 }
-
 .river-label.main{
   font-size:12px;
   color:#1f6feb;
@@ -70,27 +65,52 @@
 <body>
 <div id="map"></div>
 
+<div id="debugBox" style="
+  position:fixed; left:10px; bottom:10px; z-index:99999;
+  background:rgba(255,255,255,.95); padding:10px 12px; border-radius:10px;
+  box-shadow:0 2px 10px rgba(0,0,0,.25); font:12px/1.35 Arial;
+  max-width: 360px;">
+  <b>Debug</b><div id="debugText">Seite geladen…</div>
+</div>
+
+
 <script>
+  function dbg(msg){
+  const el = document.getElementById("debugText");
+  if (el) el.innerHTML += "<br>• " + msg;
+}
+
+// Zeigt JS-Fehler direkt im Debug-Feld (ohne Konsole)
+window.addEventListener("error", (e) => {
+  dbg("❌ JS Fehler: " + (e.message || e.error));
+});
+window.addEventListener("unhandledrejection", (e) => {
+  dbg("❌ Promise Fehler: " + (e.reason?.message || e.reason));
+});
+
+dbg("✅ Script gestartet");
+
+
+
   // ================= KARTE =================
   const map = L.map("map").fitBounds([[13.0,-90.2],[14.5,-87.6]]);
-
-console.log("Script läuft bis nach map ✅");
+  
+  dbg("✅ map erstellt");
 
   L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
     attribution:"© OpenStreetMap",
     maxZoom: 19
   }).addTo(map);
 
-  // ================= LAYER =================
-  const layerStaedte = L.layerGroup().addTo(map);
-  const layerKultur = L.layerGroup().addTo(map);
-  const layerNatur = L.layerGroup().addTo(map);
-  const layerStrand = L.layerGroup().addTo(map);
-  const layerWeitereBesondereOrte = L.layerGroup().addTo(map);
-  const layerBesondereOrte = L.layerGroup().addTo(map);
-  const layerHauptfluesse = L.layerGroup().addTo(map);
-  const layerNebenfluesse = L.layerGroup().addTo(map);
+// =================== LAYER GRUNDLAGEN ===================
+const layerStaedte = window.layerStaedte || L.layerGroup().addTo(map);
+const layerKultur  = window.layerKultur  || L.layerGroup().addTo(map);
+const layerNatur   = window.layerNatur   || L.layerGroup().addTo(map);
+const layerStrand = L.layerGroup().addTo(map);
+const layerWeitereBesondereOrte = L.layerGroup().addTo(map);
+const layerBesondereOrte = window.layerBesondereOrte || L.layerGroup().addTo(map);
 
+const layerFluesse = L.layerGroup().addTo(map);
 
   // ================= ICONS =================
   // Bildmarker mit optionaler optischer Verschiebung (dx, dy) in Pixeln
@@ -330,7 +350,66 @@ function labelOffset(name){
   return [0, 0];
 }
 
+// =================== FLÜSSE LADEN (GeoJSON, GitHub Pages-sicher) ===================
+const KEEP = new Set([
+  "Río Lempa", "Rio Lempa",
+  "Río Paz", "Rio Paz",
+  "Río Goascorán", "Rio Goascoran",
+  "Río Grande de San Miguel", "Rio Grande de San Miguel",
+  "Río Jiboa", "Rio Jiboa"
+]);
 
+const labeledRivers = new Set();
+
+function isMainRiver(name){
+  return (name || "").toLowerCase().includes("lempa");
+}
+
+function normName(s){ return (s || "").trim(); }
+
+fetch(new URL("data/rivers.geojson", document.baseURI), { cache: "no-store" })
+  .then(res => {
+    if (!res.ok) throw new Error(`rivers.geojson nicht gefunden (HTTP ${res.status})`);
+    return res.json();
+  })
+  .then(geo => {
+    const filtered = {
+      type: "FeatureCollection",
+      features: (geo.features || []).filter(f => KEEP.has(normName(f.properties?.name)))
+    };
+
+    L.geoJSON(filtered, {
+      style: f => isMainRiver(f.properties?.name)
+        ? { color:"#1f6feb", weight:2.8, opacity:0.95 }
+        : { color:"#6ea8ff", weight:1.4, opacity:0.9 },
+
+      onEachFeature: (feature, layer) => {
+        const name = feature.properties?.name;
+        if (!name) return;
+
+        layer.addTo(layerFluesse).bindPopup(`<b>${name}</b>`);
+
+        // Nur 1 Label pro Flussname
+        if (labeledRivers.has(name)) return;
+        labeledRivers.add(name);
+
+        const center = layer.getBounds().getCenter();
+
+        L.marker(center, {
+          interactive: false,
+          icon: L.divIcon({
+            className: isMainRiver(name) ? "river-label main" : "river-label",
+            html: name,
+            iconSize: null
+          })
+        }).addTo(layerFluesse);
+      }
+    }).addTo(layerFluesse);
+  })
+  .catch(err => {
+    alert("Flüsse konnten nicht geladen werden:\n" + err.message +
+      "\n\nPrüfe: Liegt die Datei wirklich unter /data/rivers.geojson ?");
+  });
 // ================= FLÜSSE (GeoJSON + EIN LABEL PRO FLUSS) =================
 const layerFluesse = L.layerGroup().addTo(map);
 
@@ -493,8 +572,9 @@ nebenfluesse.forEach(fluss => {
   "🏙️ Städte": layerStaedte,
   "🏛️ Sehenswürdigkeiten": layerKultur,
   "🌿 Natur": layerNatur,
-  "🏖️ Strand": layerStrand,
-  "🟦 Flüsse (Auswahl)": layerFluesse
+  "🏖️ Strände": layerStraende,
+  "❗ Besondere Orte": layerBesondereOrte,
+  "🟦 Flüsse": layerFluesse
 }, { collapsed: false }).addTo(map);
 
 
@@ -502,9 +582,17 @@ nebenfluesse.forEach(fluss => {
 
   // ================= LEGENDE =================
 const legend = L.control({ position: "topright" });
-
 legend.onAdd = function () {
   const div = L.DomUtil.create("div", "legend");
+  div.style.background = "white";
+  div.style.padding = "10px";
+  div.style.borderRadius = "10px";
+  div.style.boxShadow = "0 2px 8px rgba(0,0,0,.2)";
+  div.style.fontSize = "13px";
+  div.style.lineHeight = "1.35";
+  div.style.position = "relative";
+  div.style.zIndex = "9999";
+
   div.innerHTML = `
     <b>Legende</b><br>
     🏙️ Städte (Bilder)<br>
@@ -514,12 +602,13 @@ legend.onAdd = function () {
     ❗ Besondere Orte<br>
     <hr style="border:none;border-top:1px solid #eee;margin:8px 0;">
     <span style="border-top:3px solid #1f6feb;display:inline-block;width:30px"></span> Hauptfluss<br>
-    <span style="border-top:2px dashed #6ea8ff;display:inline-block;width:30px"></span> Nebenfluss
+    <span style="border-top:2px solid #6ea8ff;display:inline-block;width:30px"></span> Weitere Flüsse
   `;
   return div;
 };
+legend.addTo(map);
+
 console.log("Legende wird hinzugefügt");
-console.log("Kurz vor legend.addTo(map) ✅");
 
 legend.addTo(map);
 
