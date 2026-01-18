@@ -64,12 +64,23 @@
       maxZoom: 19
     }).addTo(map);
 	
-	// ================= LAYER-GRUPPEN =================
-	const layerStaedte = L.layerGroup().addTo(map);
-	const layerSehensw = L.layerGroup().addTo(map);
-	const layerNatur   = L.layerGroup().addTo(map);
-	const layerOrte    = L.layerGroup().addTo(map);
-	const layerFlues
+	// ================= LAYER =================
+  const layerStaedte = L.layerGroup().addTo(map);
+  const layerKultur = L.layerGroup().addTo(map);
+  const layerNatur = L.layerGroup().addTo(map);
+  const layerStrand = L.layerGroup().addTo(map);
+  //const layerWeitereBesondereOrte = L.layerGroup().addTo(map);
+  const layerBesondereOrte = L.layerGroup().addTo(map);
+  const layerFluesse = L.layerGroup().addTo(map);
+    
+  // ================= LAYER CONTROL (AN/AUS) =================
+L.control.layers(null, {
+  "🏙️ Städte": layerStaedte,
+  "🏛️ Sehenswürdigkeiten": layerKultur,
+  "🌿 Natur / Parks / Vulkane": layerNatur,
+  "❗ Besondere Orte": layerBesondereOrte,
+  "🟦 Flüsse": layerFluesse
+}, { collapsed: false }).addTo(map);
 
 
     // ================= LEGENDE =================
@@ -199,18 +210,7 @@ fetch(new URL("data/rivers.geojson", document.baseURI), { cache: "no-store" })
     alert("❌ Flüsse konnten nicht geladen werden: " + err.message);
   });
 
- // ================= LAYER =================
-  const layerStaedte = L.layerGroup().addTo(map);
-  const layerKultur = L.layerGroup().addTo(map);
-  const layerNatur = L.layerGroup().addTo(map);
-  const layerStrand = L.layerGroup().addTo(map);
-  const layerWeitereBesondereOrte = L.layerGroup().addTo(map);
-  const layerBesondereOrte = L.layerGroup().addTo(map);
-  const layerHauptfluesse = L.layerGroup().addTo(map);
-  const layerNebenfluesse = L.layerGroup().addTo(map);
-
-
-  // ================= ICONS =================
+   // ================= ICONS =================
   // Bildmarker mit optionaler optischer Verschiebung (dx, dy) in Pixeln
   function makeImageDivIcon(imageUrl, size = 46, dx = 0, dy = 0) {
     return L.divIcon({
@@ -531,18 +531,6 @@ nebenfluesse.forEach(fluss => {
   .addTo(layerNebenfluesse)
   .bindPopup(`<b>${fluss.name}</b><br>${fluss.text}`);
 });
-
-
-  // ================= LAYER CONTROL =================
-  L.control.layers(null, {
-  "🏙️ Städte": layerStaedte,
-  "🏛️ Sehenswürdigkeiten": layerKultur,
-  "🌿 Natur": layerNatur,
-  "🏖️ Strand": layerStrand,
-  "🟦 Flüsse (Auswahl)": layerFluesse
-}, { collapsed: false }).addTo(map);
-
-
 
   </script>
 </body>
