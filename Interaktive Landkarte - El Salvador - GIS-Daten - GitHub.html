@@ -63,6 +63,14 @@
       attribution: "© OpenStreetMap",
       maxZoom: 19
     }).addTo(map);
+	
+	// ================= LAYER-GRUPPEN =================
+	const layerStaedte = L.layerGroup().addTo(map);
+	const layerSehensw = L.layerGroup().addTo(map);
+	const layerNatur   = L.layerGroup().addTo(map);
+	const layerOrte    = L.layerGroup().addTo(map);
+	const layerFlues
+
 
     // ================= LEGENDE =================
     const legend = L.control({ position: "topright" });
