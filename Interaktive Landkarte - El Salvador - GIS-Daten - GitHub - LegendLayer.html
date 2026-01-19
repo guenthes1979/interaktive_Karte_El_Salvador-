@@ -64,6 +64,8 @@
       maxZoom: 19
     }).addTo(map);
 	
+alert("Layer-Control OK");
+	
 	 // ================= LAYER =================
   const layerStaedte = L.layerGroup().addTo(map);
   const layerKultur = L.layerGroup().addTo(map);
@@ -483,36 +485,11 @@ function labelOffset(name){
     .addTo(layerBesondereOrte)
     .bindPopup(popupHTML(o));
 });
-weitereBesondereOrte.forEach(o => {
-  L.marker(o.coords, {
-    icon: makeImageDivIcon(o.iconLocal, 46, o.dx || 0, o.dy || 0)
-  })
-  .addTo(layerBesondereOrte)
-  .bindPopup(popupHTML(o));
-});
 
-  
-  // ================= STRAND-MARKER =================
 straende.forEach(o => {
   L.marker(o.coords, {
     icon: makeImageDivIcon(o.iconLocal, 46, 0, 0)
   }).addTo(layerStrand).bindPopup(popupHTML(o));
-});
-
-// ================= VULKAN-MARKER =================
-vulkane.forEach(o => {
-  L.marker(o.coords, {
-    icon: makeImageDivIcon(o.iconLocal, 46, 0, 0)
-  }).addTo(layerNatur).bindPopup(popupHTML(o));
-});
-
-// ================= NATIONALPARK-MARKER =================
-nationalparks.forEach(o => {
-  const dy = (o.title === "Nationalpark Cerro Verde") ? 25 : 0;
-
-  L.marker(o.coords, {
-    icon: makeImageDivIcon(o.iconLocal, 46, 0, dy)
-  }).addTo(layerNatur).bindPopup(popupHTML(o));
 });
 
   </script>
