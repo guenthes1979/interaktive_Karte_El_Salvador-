@@ -37,14 +37,14 @@
   color:#1f6feb; /* kräftigeres Blau für Lempa */
 }
 
-  .popup-img {
-    width:220px;
-    max-width:100%;
-    border-radius:10px;
-    margin-top:8px;
-    display:block;
-  }
+ .popup-img {
+  width:220px;
+  max-width:100%;
+  border-radius:10px;
+  margin-top:8px;
+  display:block;
 }
+
 
 
   </style>
@@ -79,8 +79,8 @@
   "🏛️ Sehenswürdigkeiten": layerKultur,
   "🌿 Natur": layerNatur,
   "🏖️ Strand": layerStrand,
-  "⭐ BesondereOrte": layerBesondereOrte
-  "🟦 Flüsse": layerFluesse
+  "⭐ BesondereOrte": layerBesondereOrte,
+  "🟦 Flüsse": layerFluesse,
   "🌋 Vulkan": layerVulkane
 }, { collapsed: false }).addTo(map);
   
@@ -379,17 +379,6 @@ const vulkane = [
     imgUrl:"https://media.tacdn.com/media/attractions-splice-spp-674x446/0d/09/83/01.jpg"
   }
 ];
-
-function labelOffset(name){
-  if (!name) return [0, 0];
-
-  // Spezielle Anpassung für Lempa
-  if (name.toLowerCase().includes("lempa")) {
-    return [0.4, -0.2]; // ➜ nach Osten & etwas nach Norden
-  }
-
-  return [0, 0];
-}
 
 // ================= MARKER ERZEUGEN =================
   staedte.forEach(o => {
