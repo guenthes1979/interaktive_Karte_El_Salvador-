@@ -226,6 +226,13 @@ const riverInfo = {
   }
 };
 
+function riverKey(name){
+  return (name || "")
+    .toLowerCase()
+    .normalize("NFD").replace(/[\u0300-\u036f]/g, "") // entfernt Akzente: Río -> Rio
+    .trim();
+}
+
 
 // GitHub Pages-sicher (Cache umgehen)
 fetch(new URL("data/rivers.geojson", document.baseURI), { cache: "no-store" })
@@ -277,17 +284,26 @@ fetch(new URL("data/rivers.geojson", document.baseURI), { cache: "no-store" })
         const [dx, dy] = labelOffset(name);
         const pos = L.latLng(center.lat + dy, center.lng + dx);
 
-        // Label als Marker (anklickbar) + Popup mit Kurzinfo
-        L.marker(pos, {
-          interactive: true,
-          icon: L.divIcon({
-            className: name.toLowerCase().includes("lempa") ? "river-label main" : "river-label",
-            html: name,
-            iconSize: null
-          })
-        })
-        .bindPopup(`<b>${name}</b><br>${riverInfo[name] || "Wichtiger Fluss in El Salvador."}`)
-        .addTo(layerFluesse);
+        const key = riverKey(name);
+		const meta = riverInfo[key];
+		const imgSrc = meta?.img ? new URL(meta.img, document.baseURI).href : "";
+
+		L.marker(pos, {
+		  interactive: true,
+		  icon: L.divIcon({
+			className: name.toLowerCase().includes("lempa") ? "river-label main" : "river-label",
+			html: name,
+			iconSize: null
+		  })
+		})
+		.bindPopup(`
+		  <div style="text-align:center;max-width:220px">
+			<b>${name}</b><br>
+			${imgSrc ? `<img src="${imgSrc}" style="width:180px;border-radius:8px;margin-top:6px;border-radius:8px;"><br><br>` : "<br>"}
+			${meta?.text || "Wichtiger Fluss in El Salvador."}
+		  </div>
+		`)
+		.addTo(layerFluesse);
       }
     }).addTo(layerFluesse);
   })
