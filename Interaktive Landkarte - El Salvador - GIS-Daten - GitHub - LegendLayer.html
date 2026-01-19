@@ -118,6 +118,56 @@
 	c.style.display = "block";
 	c.style.zIndex = "999999";
 	
+	// ================= ICONS =================
+  // Bildmarker mit optionaler optischer Verschiebung (dx, dy) in Pixeln
+  function makeImageDivIcon(imageUrl, size = 46, dx = 0, dy = 0) {
+    return L.divIcon({
+      className:"",
+      html: `
+        <img src="${imageUrl}" class="photo-marker"
+             style="width:${size}px;height:${size}px;transform:translate(${dx}px,${dy}px)">
+      `,
+      iconSize:[size,size],
+      iconAnchor:[size/2,size],   // unten mittig
+      popupAnchor:[0,-size]
+    });
+  }
+
+  // Einfache Emoji-Marker als Fallback (für Natur/Besondere Orte, falls du willst)
+  function makeEmojiIcon(emoji, bg) {
+    return L.divIcon({
+      className:"",
+      html: `
+        <div style="
+          width:28px;height:28px;border-radius:999px;background:${bg};
+          display:flex;align-items:center;justify-content:center;
+          border:2px solid white;box-shadow:0 2px 8px rgba(0,0,0,.25);
+          font-size:16px;">
+          ${emoji}
+        </div>`,
+      iconSize:[28,28],
+      iconAnchor:[14,28],
+      popupAnchor:[0,-28]
+    });
+  }
+
+  const iconNature = makeEmojiIcon("🌿", "#73d99f");
+  const iconAlert  = makeEmojiIcon("⭐", "#ffd166");
+
+  // ================= POPUP =================
+  function popupHTML(o){
+    const img = o.imgUrl ? `<img class="popup-img" src="${o.imgUrl}" alt="${o.title}">` : "";
+    return `
+      <div>
+        <b>${o.title}</b><br>
+        <i>${o.subtitle || ""}</i><br><br>
+        ${o.text || ""}
+        ${img}
+      </div>
+    `;
+  }
+
+	
 	// ================= FLÜSSE (Top 5 + 1 Label je Fluss) =================
 
 // 5 wichtigste Flüsse
