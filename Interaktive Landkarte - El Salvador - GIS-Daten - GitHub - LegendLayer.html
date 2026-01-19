@@ -55,8 +55,6 @@
   <div id="map"></div>
 
  <script>
-  alert("✅ Script läuft!");
-
   const map = L.map("map");
   map.fitBounds([[13.0, -90.2], [14.5, -87.6]]);
 
@@ -65,22 +63,58 @@
     maxZoom: 19
   }).addTo(map);
 
-  alert("✅ Karte + TileLayer OK");
-
-  // Layer anlegen
+  // ================= LAYER =================
   const layerStaedte = L.layerGroup().addTo(map);
   const layerKultur = L.layerGroup().addTo(map);
+  const layerNatur = L.layerGroup().addTo(map);
+  const layerStrand = L.layerGroup().addTo(map);
+  const layerBesondereOrte = L.layerGroup().addTo(map);
+  const layerFluesse = L.layerGroup().addTo(map);
+  
 
-  alert("✅ Layer OK");
-
-  // Layer-Control
+    // ================= LAYER CONTROL =================
   L.control.layers(null, {
-    "🏙️ Städte": layerStaedte,
-    "🏛️ Sehenswürdigkeiten": layerKultur
-  }, { collapsed: false }).addTo(map);
+  "🏙️ Städte": layerStaedte,
+  "🏛️ Sehenswürdigkeiten": layerKultur,
+  "🌿 Natur": layerNatur,
+  "🏖️ Strand": layerStrand,
+  "🟦 Flüsse": layerFluesse
+}, { collapsed: false }).addTo(map);
+  
+  
+  // ================= LEGENDE =================
+    const legend = L.control({ position: "topright" });
+    legend.onAdd = function () {
+      const div = L.DomUtil.create("div");
+      div.style.background = "white";
+      div.style.padding = "10px";
+      div.style.borderRadius = "10px";
+      div.style.boxShadow = "0 2px 8px rgba(0,0,0,.2)";
+      div.style.fontSize = "13px";
+      div.style.lineHeight = "1.35";
+      div.style.maxWidth = "220px";
+      div.style.zIndex = "99999";
+      div.innerHTML = `
+        <b>Legende</b><br>
+        🏙️ Städte<br>
+        🏛️ Sehenswürdigkeiten<br>
+        🌿 Natur / Parks / Vulkane<br>
+        🏖️ Strände<br>
+        ❗ Besondere Orte<br>
+        <hr style="border:none;border-top:1px solid #eee;margin:8px 0;">
+        <span style="border-top:3px solid #1f6feb;display:inline-block;width:30px"></span> Hauptfluss<br>
+        <span style="border-top:2px solid #6ea8ff;display:inline-block;width:30px"></span> Weitere Flüsse
+      `;
+      return div;
+    };
+    legend.addTo(map);
 
-  alert("✅ Layer-Control OK");
-</script>
+	// ✅ erzwinge Sichtbarkeit (falls CSS sie versteckt)
+	const c = legend.getContainer();
+	c.style.display = "block";
+	c.style.zIndex = "999999";
+
+ </script>
 
 </body>
 </html>
