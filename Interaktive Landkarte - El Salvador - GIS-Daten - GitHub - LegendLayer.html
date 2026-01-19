@@ -204,12 +204,28 @@ function normName(s) {
 
 // Kurzinfos fürs Popup (Klick auf Label)
 const riverInfo = {
-  "Río Lempa": "Der längste und wichtigste Fluss El Salvadors. Er versorgt viele Städte mit Wasser und wird zur Stromerzeugung genutzt.",
-  "Río Paz": "Grenzfluss zwischen El Salvador und Guatemala. Wichtig für Landwirtschaft und Bewässerung.",
-  "Río Goascorán": "Bildet einen Teil der Grenze zu Honduras und mündet in den Pazifik.",
-  "Río Grande de San Miguel": "Wichtiger Fluss im Osten des Landes, der aus den Vulkanregionen entspringt.",
-  "Río Jiboa": "Fluss im Zentrum des Landes, der in den Pazifik fließt und landwirtschaftliche Gebiete versorgt."
+  "Río Lempa": {
+    text: "Der längste und wichtigste Fluss El Salvadors. Er versorgt viele Städte mit Wasser und wird zur Stromerzeugung genutzt.",
+    img: "images/lempariver.jpg"
+  },
+  "Río Paz": {
+    text: "Grenzfluss zwischen El Salvador und Guatemala. Wichtig für Landwirtschaft und Bewässerung.",
+    img: "images/riopaz.jpg"
+  },
+  "Río Goascorán": {
+    text: "Bildet einen Teil der Grenze zu Honduras und mündet in den Pazifik.",
+    img: "images/goascoran.jpg"
+  },
+  "Río Grande de San Miguel": {
+    text: "Wichtiger Fluss im Osten des Landes, der aus den Vulkanregionen entspringt.",
+    img: "images/riogrande.jpg"
+  },
+  "Río Jiboa": {
+    text: "Fluss im Zentrum des Landes, der in den Pazifik fließt und landwirtschaftliche Gebiete versorgt.",
+    img: "images/jiboa.jpg"
+  }
 };
+
 
 // GitHub Pages-sicher (Cache umgehen)
 fetch(new URL("data/rivers.geojson", document.baseURI), { cache: "no-store" })
@@ -242,7 +258,15 @@ fetch(new URL("data/rivers.geojson", document.baseURI), { cache: "no-store" })
         if (!name) return;
 
         // optional: Klick auf die Linie zeigt Name
-        layer.bindPopup(`<b>${name}</b>`);
+        .bindPopup(`
+		  <div style="text-align:center">
+			<b>${name}</b><br>
+			<small style="color:#1f6feb">Klicke auf den Namen des Flusses</small><br><br>
+			<img src="${riverInfo[name]?.img}" style="width:180px;border-radius:8px;"><br><br>
+			${riverInfo[name]?.text}
+		  </div>
+		`)
+
 
         // nur 1 Beschriftung je Name
         if (labeled.has(name)) return;
