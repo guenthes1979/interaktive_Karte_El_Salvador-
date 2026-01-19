@@ -206,23 +206,23 @@ function normName(s) {
 const riverInfo = {
   "Río Lempa": {
     text: "Der längste und wichtigste Fluss El Salvadors. Er versorgt viele Städte mit Wasser und wird zur Stromerzeugung genutzt.",
-    img: "images/lempariver.jpg"
+    img: "images/Rio Lempa.jpg"
   },
   "Río Paz": {
     text: "Grenzfluss zwischen El Salvador und Guatemala. Wichtig für Landwirtschaft und Bewässerung.",
-    img: "images/riopaz.jpg"
+    img: "images/Rio Paz.jpg"
   },
   "Río Goascorán": {
     text: "Bildet einen Teil der Grenze zu Honduras und mündet in den Pazifik.",
-    img: "images/goascoran.jpg"
+    img: "images/Rio Goascoran.jpg"
   },
   "Río Grande de San Miguel": {
     text: "Wichtiger Fluss im Osten des Landes, der aus den Vulkanregionen entspringt.",
-    img: "images/riogrande.jpg"
+    img: "images/Río Grande de San Miguel.jpg"
   },
   "Río Jiboa": {
     text: "Fluss im Zentrum des Landes, der in den Pazifik fließt und landwirtschaftliche Gebiete versorgt.",
-    img: "images/jiboa.jpg"
+    img: "images/Rio Jiboa.jpg"
   }
 };
 
@@ -258,7 +258,7 @@ fetch(new URL("data/rivers.geojson", document.baseURI), { cache: "no-store" })
         if (!name) return;
 
         // optional: Klick auf die Linie zeigt Name
-        .bindPopup(`
+        layer.bindPopup(`
 		  <div style="text-align:center">
 			<b>${name}</b><br>
 			<small style="color:#1f6feb">Klicke auf den Namen des Flusses</small><br><br>
