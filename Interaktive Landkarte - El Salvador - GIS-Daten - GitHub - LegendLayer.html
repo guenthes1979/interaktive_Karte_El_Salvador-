@@ -483,9 +483,12 @@ const vulkane = [
 
 vulkane.forEach(o => {
   L.marker(o.coords, {
-    icon: makeImageDivIcon(o.iconLocal, 46, 0, 0)
-  }).addTo(layerVulkane).bindPopup(popupHTML(o));
+    icon: makeImageDivIcon(o.iconLocal, 46, o.dx || 0, o.dy || 0)
+  })
+  .addTo(layerVulkane)
+  .bindPopup(popupHTML(o));
 });
+
 	
  </script>
 
