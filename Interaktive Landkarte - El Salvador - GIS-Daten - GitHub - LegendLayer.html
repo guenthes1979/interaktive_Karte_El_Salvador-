@@ -70,6 +70,7 @@
   const layerStrand = L.layerGroup().addTo(map);
   const layerBesondereOrte = L.layerGroup().addTo(map);
   const layerFluesse = L.layerGroup().addTo(map);
+  const layerVulkane = L.layerGroup().addTo(map);
   
 
     // ================= LAYER CONTROL =================
@@ -78,7 +79,9 @@
   "🏛️ Sehenswürdigkeiten": layerKultur,
   "🌿 Natur": layerNatur,
   "🏖️ Strand": layerStrand,
+  "⭐ BesondereOrte": layerBesondereOrte
   "🟦 Flüsse": layerFluesse
+  "🌋 Vulkan": layerVulkane
 }, { collapsed: false }).addTo(map);
   
   
@@ -100,7 +103,8 @@
         🏛️ Sehenswürdigkeiten<br>
         🌿 Natur / Parks / Vulkane<br>
         🏖️ Strände<br>
-        ❗ Besondere Orte<br>
+        ⭐ Besondere Orte<br>
+		🌋 Vulkane<br>
         <hr style="border:none;border-top:1px solid #eee;margin:8px 0;">
         <span style="border-top:3px solid #1f6feb;display:inline-block;width:30px"></span> Hauptfluss<br>
         <span style="border-top:2px solid #6ea8ff;display:inline-block;width:30px"></span> Weitere Flüsse
@@ -207,7 +211,227 @@ fetch(new URL("data/rivers.geojson", document.baseURI), { cache: "no-store" })
   .catch(err => {
     alert("❌ Flüsse konnten nicht geladen werden: " + err.message);
   });
-	
+  
+  // ================= DATEN =================
+  const staedte = [
+    {
+      title:"San Salvador",
+      coords:[13.6929,-89.2182],
+      iconLocal:"images/San Salvador.jpg",
+      subtitle:"Hauptstadt",
+      text:"San Salvador ist die Hauptstadt von El Salvador – Zentrum für Politik, Bildung und Wirtschaft.",
+      imgUrl:"https://cdn.getyourguide.com/img/tour/47988c7e5b8bbf0af11e62a6ff4aefeea5a7f6de61e1c3bbe1389006ef589164.jpg/98.jpg"
+    },
+    {
+      title:"Santa Ana",
+      coords:[13.9942,-89.5597],
+      iconLocal:"images/Santa Ana.jpg",
+      subtitle:"Stadt im Westen",
+      text:"Santa Ana ist eine wichtige Stadt im Westen. In der Nähe liegt eine Vulkanregion.",
+      imgUrl:"https://www.my-travelworld.de/wp-content/uploads/el_salvador_006_santa_ana_parque_la_libertad.jpg"
+    },
+    {
+      title:"San Miguel",
+      coords:[13.4833,-88.1833],
+      iconLocal:"images/San Miguel.jpg",
+      subtitle:"Stadt im Osten",
+      text:"San Miguel ist eine große Stadt im Osten und ein Zentrum für Handel und Regionalkultur.",
+      imgUrl:"https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRVnidkF5P_hi1khBDr9juprQ6LYOqGPTcNsw&s"
+    }
+  ];
+
+  const kultur = [
+    {
+      title:"Joya de Cerén (UNESCO)",
+      coords:[13.8267,-89.3611],
+      iconLocal:"images/Joya de Ceren.jpg",
+      subtitle:"Archäologische Fundstätte",
+      text:"Ein Dorf, das durch Vulkanasche erhalten blieb – ein einzigartiger Blick in die Vergangenheit.",
+      imgUrl:"https://dynamic-media-cdn.tripadvisor.com/media/photo-o/04/79/d3/d3/sitio-arqueologico-joya.jpg?w=900&h=500&s=1"
+    },
+    {
+      title:"Tazumal (Chalchuapa)",
+      coords:[13.9867,-89.6817],
+      iconLocal:"images/Tazumal.jpg",
+      subtitle:"Ruinenanlage",
+      text:"Bekannte Ruinenstätte – zeigt frühe große Siedlungen und Kultur in der Region.",
+      imgUrl:"https://upload.wikimedia.org/wikipedia/commons/thumb/9/9b/ES_Tazumal_06_2011_2236.jpg/1200px-ES_Tazumal_06_2011_2236.jpg"
+    },
+    {
+      title:"Ruta de las Flores (Region)",
+      coords:[13.8480,-89.6620],
+      iconLocal:"images/Ruta de las Flores.jpg",
+      subtitle:"Kulturroute im Hochland",
+      text:"Region/Route mit Dörfern, Märkten, Kaffee und schöner Berglandschaft.",
+      imgUrl:"https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQ1T1fDFVIwvvMToRqZWqtLqJJysKt6JfLFWg&s",
+      dx:-35, dy:-10 // ⬅️ nach links verschoben
+    }
+  ];
+
+  const natur = [
+    {
+      title:"Lago de Coatepeque",
+      coords:[13.8630,-89.5480],
+      iconLocal:"images/Lago de Coatepeque.jpg",
+      subtitle:"Vulkanischer Kratersee",
+      text:"Großer Kratersee – durch vulkanische Prozesse entstanden und landschaftlich sehr beeindruckend.",
+      imgUrl:"https://upload.wikimedia.org/wikipedia/commons/d/d0/Teopan.jpg",
+      dx:12, dy:24   // ➡️⬇️ nach rechts & unten verschoben
+    }
+  ];
+
+  const besondereOrte = [
+  {
+    title:"Erdbeben- & Vulkanzone",
+    coords:[13.9000,-88.9000],
+    subtitle:"Naturgefahren",
+    text:"El Salvador liegt an einer Plattengrenze – daher gibt es häufig Erdbeben und Vulkane.",
+    iconLocal:"images/Vulkan San Vincente.jpg",      
+    imgUrl:"https://images.trvl-media.com/localexpert/46416047/bb24d270-a348-48af-b3a9-d5262657acd1.jpg?impolicy=resizecrop&rw=1005&rh=565"
+  },
+  {
+    title: "Bahía de Jiquilisco",
+    coords: [13.2000, -88.5000],
+    subtitle: "Mangroven & Biosphärenreservat",
+    text: "Großes Mangrovengebiet an der Pazifikküste. Wichtig für Fischerei, Küstenschutz und viele Tierarten.",
+    iconLocal: "images/Bahía de Jiquilisco.jpg",
+    imgUrl: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRKgQxZbWrEySf-WcA_7V065vetmCwzWdMJlw&s",
+    dx: 10,    // ➡️ leicht nach rechts (optional)
+    dy: 10     // ⬇️ leicht nach unten (optional)
+  },
+  {
+    title: "Nationalpark Montecristo",
+    coords: [14.3906, -89.3847],
+    subtitle: "Nebelwald & Dreiländereck",
+    text: "Feuchter Nebelwald im Grenzgebiet zu Guatemala und Honduras mit seltener Pflanzen- und Tierwelt.",
+    iconLocal: "images/Nationalpark Montecristo.jpg",
+    imgUrl: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSE1t5eWuOSxOBazaAYFaxvF51DISrBACIQ7Q&s",
+    dx: -10,   // ⬅️ leicht nach links (optional)
+    dy: 12     // ⬇️ leicht nach unten (optional)
+  },
+  {
+    title:"Nationalpark Cerro Verde",
+    coords:[13.8239,-89.6256],
+    iconLocal:"images/Cerro Verde.jpg",
+    subtitle:"Vulkanlandschaft",
+    text:"Der Nationalpark Cerro Verde bietet Ausblicke auf mehrere Vulkane und Wanderwege.",
+    imgUrl:"https://cf.bstatic.com/xdata/images/hotel/max1024x768/318491098.webp?k=b2067e419d9e605e0c0d266455e9d5b1e3b654cad1001af8066ec704d45ae0ae&o=",
+	dx:30, dy:20   // ➡️⬇️ nach rechts & unten verschoben
+  },
+  {
+    title:"Nationalpark El Imposible",
+    coords:[13.8375,-89.9397],
+    iconLocal:"images/El Imposible Nationalpark.jpg",
+    subtitle:"Regenwald & Tierwelt",
+    text:"Der größte Nationalpark El Salvadors mit tropischem Regenwald und vielen Tierarten.",
+    imgUrl:"https://thumbs.dreamstime.com/b/wasserfall-nationalpark-el-imposible-honduras-110551462.jpg"
+  }
+];  
+ 
+const straende = [
+  {
+    title:"El Tunco",
+    coords:[13.4927,-89.3816],
+    iconLocal:"images/El Tunca - Strand.jpg",
+    subtitle:"Pazifikstrand",
+    text:"El Tunco ist ein bekannter Surfstrand mit schwarzem Vulkansand und markantem Felsen im Meer.",
+    imgUrl:"https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQj7nvMHqZyRQlgWTBUcFkuquRMN6vswgvBGA&s"
+  },
+  {
+    title: "Costa del Sol",
+    coords: [13.3450, -88.9300],
+    subtitle: "Langer Sandstrand",
+    text: "Beliebter Strand an der Pazifikküste mit Tourismus, Fischerei und Lagunenlandschaft.",
+    iconLocal: "images/Costa del Sol.jpg",
+    imgUrl: "https://daytrip.imgix.net/Playa-Costa-del-Sol.jpg",
+    dx: 14,    // ➡️ etwas nach rechts (optional)
+    dy: 0
+  }
+];
+
+// ================= VULKANE =================
+const vulkane = [
+  {
+    title:"Vulkan Santa Ana (Ilamatepec)",
+    coords:[13.8536,-89.6300],
+    iconLocal:"images/Vulkan Santa Ana.jpg",
+    subtitle:"Höchster Vulkan des Landes",
+    text:"Der Vulkan Santa Ana ist der höchste Vulkan El Salvadors und besitzt einen Kratersee.",
+    imgUrl:"https://betterbeyond.de/wp-content/uploads/2022/03/Santa-Ana-Volcano.jpg",
+	dx:10, dy:0  // ➡️⬇️ nach rechts & unten verschoben
+  },
+  {
+    title: "Vulkan Izalco",
+    coords: [13.8136, -89.6333],
+    subtitle: "Junger Vulkan",
+    text: "Der Vulkan Izalco entstand im 18. Jahrhundert und war wegen seiner häufigen Ausbrüche als „Leuchtturm des Pazifiks“ bekannt.",
+    iconLocal: "images/Vulkan Izalco.jpg",
+    imgUrl: "https://volcanodiscovery.de/uploads/tx_volcanoes/izalco.JPG",
+    dx: -25,   // ⬅️ nach links (gegen Überlappung mit Santa Ana/Cerro Verde)
+    dy: 20   // ⬇️ leicht nach unten 
+  },
+  {
+    title:"Vulkan San Miguel (Chaparrastique)",
+    coords:[13.4347,-88.2694],
+    iconLocal:"images/Vulkan San Miguel.jpg",
+    subtitle:"Aktiver Vulkan im Osten",
+    text:"Einer der aktivsten Vulkane El Salvadors mit regelmäßigen Ausbrüchen.",
+    imgUrl:"https://media.tacdn.com/media/attractions-splice-spp-674x446/0d/09/83/01.jpg"
+  }
+];
+
+function labelOffset(name){
+  if (!name) return [0, 0];
+
+  // Spezielle Anpassung für Lempa
+  if (name.toLowerCase().includes("lempa")) {
+    return [0.4, -0.2]; // ➜ nach Osten & etwas nach Norden
+  }
+
+  return [0, 0];
+}
+
+// ================= MARKER ERZEUGEN =================
+  staedte.forEach(o => {
+    L.marker(o.coords, { icon: makeImageDivIcon(o.iconLocal, 46, o.dx||0, o.dy||0) })
+      .addTo(layerStaedte)
+      .bindPopup(popupHTML(o));
+  });
+
+  kultur.forEach(o => {
+    L.marker(o.coords, { icon: makeImageDivIcon(o.iconLocal, 46, o.dx||0, o.dy||0) })
+      .addTo(layerKultur)
+      .bindPopup(popupHTML(o));
+  });
+
+  natur.forEach(o => {
+    // Natur auch als Bildmarker (hier speziell Lago)
+    L.marker(o.coords, { icon: makeImageDivIcon(o.iconLocal, 46, o.dx||0, o.dy||0) })
+      .addTo(layerNatur)
+      .bindPopup(popupHTML(o));
+  });
+
+  besondereOrte.forEach(o => {
+  const icon = o.iconLocal
+    ? makeImageDivIcon(o.iconLocal, 46, o.dx||0, o.dy||0)
+    : iconAlert;
+
+  L.marker(o.coords, { icon })
+    .addTo(layerBesondereOrte)
+    .bindPopup(popupHTML(o));
+});
+  
+  straende.forEach(o => {
+  L.marker(o.coords, {
+    icon: makeImageDivIcon(o.iconLocal, 46, 0, 0)
+  }).addTo(layerStrand).bindPopup(popupHTML(o));
+});
+
+vulkane.forEach(o => {
+  L.marker(o.coords, {
+    icon: makeImageDivIcon(o.iconLocal, 46, 0, 0)
+  }).addTo(layerVulkane).bindPopup(popupHTML(o));
+});
 	
  </script>
 
