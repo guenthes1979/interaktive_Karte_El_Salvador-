@@ -149,21 +149,6 @@
   }
 
   const iconNature = makeEmojiIcon("🌿", "#73d99f");
-  
-  // ================= POPUP =================
-  function popupHTML(o){
-    const img = o.imgUrl ? `<img class="popup-img" src="${o.imgUrl}" alt="${o.title}">` : "";
-    return `
-      <div>
-        <b>${o.title}</b><br>
-        <i>${o.subtitle || ""}</i><br><br>
-        ${o.text || ""}
-        ${img}
-      </div>
-    `;
-  }
-
-  
 
  </script>
 
