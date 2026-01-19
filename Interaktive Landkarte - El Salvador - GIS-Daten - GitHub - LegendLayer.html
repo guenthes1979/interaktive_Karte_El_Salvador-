@@ -320,6 +320,14 @@ fetch(new URL("data/rivers.geojson", document.baseURI), { cache: "no-store" })
 
   const natur = [
     {
+    title:"Erdbeben- & Vulkanzone",
+    coords:[13.9000,-88.9000],
+    subtitle:"Naturgefahren",
+    text:"El Salvador liegt an einer Plattengrenze – daher gibt es häufig Erdbeben und Vulkane.",
+    iconLocal:"images/Vulkan San Vincente.jpg",      
+    imgUrl:"https://images.trvl-media.com/localexpert/46416047/bb24d270-a348-48af-b3a9-d5262657acd1.jpg?impolicy=resizecrop&rw=1005&rh=565"
+	},
+	{
       title:"Lago de Coatepeque",
       coords:[13.8630,-89.5480],
       iconLocal:"images/Lago de Coatepeque.jpg",
@@ -331,14 +339,6 @@ fetch(new URL("data/rivers.geojson", document.baseURI), { cache: "no-store" })
   ];
 
   const besondereOrte = [
-  {
-    title:"Erdbeben- & Vulkanzone",
-    coords:[13.9000,-88.9000],
-    subtitle:"Naturgefahren",
-    text:"El Salvador liegt an einer Plattengrenze – daher gibt es häufig Erdbeben und Vulkane.",
-    iconLocal:"images/Vulkan San Vincente.jpg",      
-    imgUrl:"https://images.trvl-media.com/localexpert/46416047/bb24d270-a348-48af-b3a9-d5262657acd1.jpg?impolicy=resizecrop&rw=1005&rh=565"
-  },
   {
     title: "Bahía de Jiquilisco",
     coords: [13.2000, -88.5000],
@@ -393,9 +393,7 @@ const straende = [
     subtitle: "Langer Sandstrand",
     text: "Beliebter Strand an der Pazifikküste mit Tourismus, Fischerei und Lagunenlandschaft.",
     iconLocal: "images/Costa del Sol.jpg",
-    imgUrl: "https://daytrip.imgix.net/Playa-Costa-del-Sol.jpg",
-    dx: 14,    // ➡️ etwas nach rechts (optional)
-    dy: 0
+    imgUrl: "https://daytrip.imgix.net/Playa-Costa-del-Sol.jpg"
   }
 ];
 
@@ -408,7 +406,7 @@ const vulkane = [
     subtitle:"Höchster Vulkan des Landes",
     text:"Der Vulkan Santa Ana ist der höchste Vulkan El Salvadors und besitzt einen Kratersee.",
     imgUrl:"https://betterbeyond.de/wp-content/uploads/2022/03/Santa-Ana-Volcano.jpg",
-	dx:10, dy:0  // ➡️⬇️ nach rechts & unten verschoben
+	dx:30, dy:0  // ➡️⬇️ nach rechts & unten verschoben
   },
   {
     title: "Vulkan Izalco",
