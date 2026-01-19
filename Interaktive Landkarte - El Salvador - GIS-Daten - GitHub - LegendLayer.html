@@ -514,29 +514,6 @@ nationalparks.forEach(o => {
   }).addTo(layerNatur).bindPopup(popupHTML(o));
 });
 
-// ================= HAUPTFLÜSSE =================
-hauptfluesse.forEach(fluss => {
-  L.polyline(fluss.coords, {
-    color: "#1f6feb",
-    weight: 3,        // etwas dicker
-    opacity: 0.9
-  })
-  .addTo(layerHauptfluesse)
-  .bindPopup(`<b>${fluss.name}</b><br>${fluss.text}`);
-});
-
-// ================= NEBENFLÜSSE =================
-nebenfluesse.forEach(fluss => {
-  L.polyline(fluss.coords, {
-    color: "#6ea8ff",
-    weight: 1.5,      // dünner
-    opacity: 0.8,
-    dashArray: "4,4"
-  })
-  .addTo(layerNebenfluesse)
-  .bindPopup(`<b>${fluss.name}</b><br>${fluss.text}`);
-});
-
   </script>
 </body>
 </html>
