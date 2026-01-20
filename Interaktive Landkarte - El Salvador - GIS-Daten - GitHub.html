@@ -293,7 +293,6 @@ fetch(new URL("data/rivers.geojson", document.baseURI), { cache: "no-store" })
         .bindPopup(`
           <div style="text-align:center;max-width:240px">
             <b>${name}</b><br>
-            <small style="color:#1f6feb">Tipp: Klicke auf den Flussnamen</small><br><br>
             ${imgSrc ? `<img src="${imgSrc}" style="width:180px;border-radius:8px;"><br><br>` : ""}
             ${meta?.text || "Wichtiger Fluss in El Salvador."}
           </div>
