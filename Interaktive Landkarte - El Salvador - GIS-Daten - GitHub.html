@@ -9,7 +9,13 @@
   <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" crossorigin=""></script>
 
   <style>
-    html, body { height: 100%; margin: 0; }
+  /*
+  CSS = Aussehen (Design)
+  - #map muss eine Höhe/Breite haben, sonst sieht man keine Karte.
+  - .photo-marker bestimmt, wie die runden Foto-Marker aussehen.
+  - .river-label bestimmt, wie Flussnamen aussehen.
+  */
+html, body { height: 100%; margin: 0; }
     #map { width: 100%; height: 100%; }
 	
 	/* Falls irgendein CSS Leaflet Controls versteckt */
@@ -58,18 +64,60 @@
 
 <body>
   <!-- WICHTIG: Muss VOR dem Script stehen -->
+  <!-- Karte (dieses DIV ist die \"Leinwand\" für Leaflet) -->
   <div id="map"></div>
 
  <script>
-  const map = L.map("map");
+// KURZ-ANLEITUNG:
+// - Marker verschieben: Die Marker kann man im Datenobjekt dx / dy ändern (z.B. dx: 20, dy: -10).
+// - Neues Foto: Datei in den Ordner images/ legen und iconLocal anpassen.
+// - Neue Orte: unten in die Listen staedte/kultur/natur/... ein neues Objekt hinzufügen.
+// - Flüsse: Datei data/rivers.geojson ersetzen oder Filter (KEEP_RIVERS) ändern.
+// ===============================================================
+// INTERAKTIVE LANDKARTE – EL SALVADOR (Leaflet)
+// 
+// Idee: Erstellung einer interaktiven Karte, dazu legen wir Gruppen (Layer) an und
+// setzen darauf Marker (Punkte) + Flüsse (Linien).
+// Dann kann man über in der Karte über ein Kästchen rechts die Gruppen ein/ausblenden.
+// ===============================================================
+
+// 1) KARTE ERSTELLEN
+// Verbindung Leaflet mit dem <div id="map"> in der HTML-Datei.
+// Danach wird festgelegt, welchen Kartenausschnitt man am Anfang sieht.
+
+// ===============================================================
+// SCHRITT 1: Karte starten
+// Wir erstellen das Leaflet-Kartenobjekt und bestimmen den Start-Ausschnitt.
+// ===============================================================
+
+const map = L.map("map");
+// fitBounds = Karte so zoomen/verschieben, dass das Rechteck (Südwest/Nordost) komplett sichtbar ist.
   map.fitBounds([[13.0, -90.2], [14.5, -87.6]]);
+
+
+// 2) KARTENKACHELN LADEN (Hintergrund)
+// Das sind die "Bildkacheln" von OpenStreetMap. Ohne das wäre der Hintergrund leer.
+
+// ===============================================================
+// SCHRITT 2: Hintergrundkarte (OpenStreetMap - https://www.openstreetmap.org/)
+// Diese Kacheln (Tiles) sind wie viele kleine Bilder, die zusammen die Karte ergeben.
+// ===============================================================
 
   L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
     attribution: "© OpenStreetMap",
     maxZoom: 19
   }).addTo(map);
 
-  // ================= LAYER =================
+
+// 3) LAYER (GRUPPEN) ANLEGEN
+// In jeder Gruppe werden Marker einer Kategorie (Städte, Natur, ...) hinterlegt.
+// Vorteil: Man kann die ganze Kategorie später ein-/ausblenden.
+
+// ===============================================================
+// SCHRITT 3: Layer (Gruppen) anlegen
+// Layer = Gruppen. So kann man Städte / Natur / Flüsse einzeln ein- und ausblenden.
+// ===============================================================
+
   const layerStaedte = L.layerGroup().addTo(map);
   const layerKultur = L.layerGroup().addTo(map);
   const layerNatur = L.layerGroup().addTo(map);
@@ -78,8 +126,15 @@
   const layerFluesse = L.layerGroup().addTo(map);
   const layerVulkane = L.layerGroup().addTo(map);
   
+// 4) LAYER-CONTROL (EIN-/AUSBLENDEN)
+// Dieses Kontrollfeld erscheint standardmäßig rechts oben.
+// Dort können Kategorien an- und abgewählt werden.
 
-    // ================= LAYER CONTROL =================
+// ===============================================================
+// SCHRITT 4: Ein-/Ausblenden (Layer-Control)
+// Das Kästchen rechts oben steuert, welche Gruppen sichtbar sind.
+// ===============================================================
+
   L.control.layers(null, {
   "🏙️ Städte": layerStaedte,
   "🏛️ Sehenswürdigkeiten": layerKultur,
@@ -92,6 +147,15 @@
   
   
   // ================= LEGENDE =================
+
+// 5) LEGENDE (ERKLÄRT DIE SYMBOLE)
+// Die Legende ist ein kleines Info-Feld. Es ist als Leaflet-Control gebaut.
+
+// ===============================================================
+// SCHRITT 5: Legende
+// Die Legende erklärt die Symbole und Linien auf der Karte.
+// ===============================================================
+
     const legend = L.control({ position: "topright" });
     legend.onAdd = function () {
       const div = L.DomUtil.create("div");
@@ -125,7 +189,17 @@
 	c.style.zIndex = "999999";
 	
 	// ================= ICONS =================
-  // Bildmarker mit optionaler optischer Verschiebung (dx, dy) in Pixeln
+// Bildmarker mit optionaler optischer Verschiebung (dx, dy) in Pixeln
+
+// 6) HILFSFUNKTION: BILD-MARKER BAUEN
+// Leaflet kann Marker mit Icons anzeigen. Es werden hier runde Fotos benutzt.
+// dx/dy = Feinjustierung: Damit können die Marker verschoben werden, wenn sie sich überlappen.
+
+// ===============================================================
+// SCHRITT 6: Hilfsfunktionen
+// Damit nicht alles 10× geschrieben werden muss, packen wir wiederkehrende Aufrufe in Funktionen.
+// ===============================================================
+
   function makeImageDivIcon(imageUrl, size = 46, dx = 0, dy = 0) {
     return L.divIcon({
       className:"",
@@ -134,12 +208,12 @@
              style="width:${size}px;height:${size}px;transform:translate(${dx}px,${dy}px)">
       `,
       iconSize:[size,size],
-      iconAnchor:[size/2,size],   // unten mittig
+      iconAnchor:[size/2,size],   
       popupAnchor:[0,-size]
     });
   }
 
-  // Einfache Emoji-Marker als Fallback (für Natur/Besondere Orte, falls du willst)
+  // Einfache Emoji-Marker als Fallback (für Natur/Besondere Orte)
   function makeEmojiIcon(emoji, bg) {
     return L.divIcon({
       className:"",
@@ -158,9 +232,16 @@
   }
 
   const iconNature = makeEmojiIcon("🌿", "#73d99f");
+
+// 8) FALLBACK-ICON
+// Wenn mal kein Foto vorhanden ist, benutzen wir stattdessen ein einfaches Symbol (⭐).
   const iconAlert  = makeEmojiIcon("⭐", "#ffd166");
 
-  // ================= POPUP =================
+// ================= POPUP =================
+
+// 7) HILFSFUNKTION: POPUP-INHALT BAUEN
+// Bei einem Klick auf einen Marker, geht ein Fenster (Popup) auf.
+// Hier wird festgelegt, was in dem Popup drinsteht: Titel, Text und ggf. ein Bild.
   function popupHTML(o){
     const img = o.imgUrl ? `<img class="popup-img" src="${o.imgUrl}" alt="${o.title}">` : "";
     return `
@@ -173,16 +254,17 @@
     `;
   }
 
-	// ================= FLÜSSE (Top 5 + 1 Label + Popup mit Bild/Text) =================
+// ================= FLÜSSE =================
 
-// 5 wichtigste Flüsse
+// Es werden für die interaktive Karte nur die 5 wichtigsten Flüsse El Salvadors angezeigt.
+
 const KEEP_RIVERS = new Set([
   "Río Lempa",
   "Río Paz",
   "Río Goascorán",
   "Río Grande de San Miguel",
   "Río Jiboa",
-  // Varianten ohne Akzent (falls so im GeoJSON)
+  // Die Flüsse ohne Akzent (falls so im GeoJSON)
   "Rio Lempa",
   "Rio Paz",
   "Rio Goascoran",
@@ -193,7 +275,7 @@ const KEEP_RIVERS = new Set([
 // Nur 1 Label pro Flussname
 const labeled = new Set();
 
-// Namen normalisieren (Akzente weg, Leerzeichen vereinheitlichen)
+// Namen normalisieren (keine Akzente, GeoJSON benötigt bei den Images Namen ohne Leerzeichen!!!)
 function riverKey(s){
   return (s || "")
     .toLowerCase()
@@ -202,7 +284,7 @@ function riverKey(s){
     .trim();
 }
 
-// Kurzinfos + lokale Bilder (GitHub-sicher)
+// Kurzinfos + lokale Bilder (GitHub)
 const riverInfoNorm = {
   "rio lempa": {
     text: "Der längste und wichtigste Fluss El Salvadors. Er versorgt viele Städte mit Wasser und wird zur Stromerzeugung genutzt.",
@@ -235,6 +317,17 @@ function labelOffset(name) {
 }
 
 // GeoJSON laden
+
+// 10) FLÜSSE (GIS-DATEN AUS GEOJSON LADEN https://geojson.io/#map=7.83/13.829/-88.814)
+// Hier wird die Datei: data/rivers.geojson
+// Das ist eine GeoJSON-Datei (echte Geodaten, in diesem Fall aus OpenStreetMap/Overpass).
+// Wichtig: Bei GitHub Pages muss der Pfad stimmen und der Server muss die Datei liefern.
+
+// ===============================================================
+// SCHRITT 8: Flüsse aus GeoJSON laden
+// GeoJSON = Datei mit echten Geodaten. Sie wird geladen und zeichnet Linien und Namen.
+// ===============================================================
+
 fetch(new URL("data/rivers.geojson", document.baseURI), { cache: "no-store" })
   .then(r => {
     if (!r.ok) throw new Error("HTTP " + r.status);
@@ -248,7 +341,12 @@ fetch(new URL("data/rivers.geojson", document.baseURI), { cache: "no-store" })
 
     const filtered = { type: "FeatureCollection", features };
 
-    // Flusslinien zeichnen + Labels
+// Flusslinien zeichnen und Labels erstellen
+
+// 11) GEOJSON ZEICHNEN
+// L.geoJSON nimmt GeoJSON-Daten und zeichnet sie als Linien/Flächen auf die Karte.
+// style gibt an, wie die Linie aussieht (Farbe, Stärke).
+// onEachFeature gibt an, was passiert für jedes einzelne Geo-Objekt (z.B. Popup, Label).
     L.geoJSON(filtered, {
       style: (feature) => {
         const n = riverKey(feature.properties?.name || "");
@@ -267,11 +365,11 @@ fetch(new URL("data/rivers.geojson", document.baseURI), { cache: "no-store" })
         // Optional: Klick auf die Linie zeigt nur den Namen
         layer.bindPopup(`<b>${name}</b>`);
 
-        // nur 1 Beschriftung je Name
+        // Die Flüsse werden nur 1 beschriftet
         if (labeled.has(name)) return;
         labeled.add(name);
 
-        // Mittelpunkt + Versatz
+        // Der Name wird im Mittelpunkt, ggfs mit Versatz, des Flussverlaufs angezeigt
         const center = layer.getBounds().getCenter();
         const [dx, dy] = labelOffset(name);
         const pos = L.latLng(center.lat + dy, center.lng + dx);
@@ -281,7 +379,7 @@ fetch(new URL("data/rivers.geojson", document.baseURI), { cache: "no-store" })
         const meta = riverInfoNorm[key];
         const imgSrc = meta?.img ? new URL(meta.img, document.baseURI).href : "";
 
-        // Label-Marker (anklickbar) + Popup mit Bild/Text
+        // Label-Marker kann angeklickt werden und es erscheint ein Popup mit Bild/Text
         L.marker(pos, {
           interactive: true,
           icon: L.divIcon({
@@ -307,6 +405,17 @@ fetch(new URL("data/rivers.geojson", document.baseURI), { cache: "no-store" })
 
 
   // ================= DATEN =================
+
+// 9) DATEN: STÄDTE / SEHENSWÜRDIGKEITEN / NATUR / STRÄNDE / VULKANE
+// Die Daten sind Arrays (Listen). Jedes Array ist ein Objekt mit:
+// title = Name, coords = [Breite, Länge], iconLocal = lokales Foto,
+// text = kurzer Infotext, imgUrl = Bild im Popup, dx/dy = Verschiebung.
+
+// ===============================================================
+// SCHRITT 7: Daten (Orte als Listen)
+// Hier stehen alle Orte als Objekte. Die Listen können erweitert werden oder über dx/dy anpasst werden.
+// ===============================================================
+
 const staedte = [
   {
     title:"San Salvador",
@@ -324,7 +433,7 @@ const staedte = [
     subtitle:"Stadt im Westen",
     text:"Santa Ana ist eine wichtige Stadt im Westen. In der Nähe liegt eine Vulkanregion.",
     imgUrl:"https://www.my-travelworld.de/wp-content/uploads/el_salvador_006_santa_ana_parque_la_libertad.jpg",
-    dx: 15, dy: 0   // ⬅️ etwas nach links/oben, um Abstand zur Region um Tazumal zu schaffen
+    dx: 15, dy: 0   
   },
   {
     title:"San Miguel",
@@ -345,7 +454,7 @@ const kultur = [
     subtitle:"Archäologische Fundstätte",
     text:"Ein Dorf, das durch Vulkanasche erhalten blieb – ein einzigartiger Blick in die Vergangenheit.",
     imgUrl:"https://dynamic-media-cdn.tripadvisor.com/media/photo-o/04/79/d3/d3/sitio-arqueologico-joya.jpg?w=900&h=500&s=1",
-    dx: 0, dy: -6   // ➡️ leicht weg von San Salvador-Achse
+    dx: 0, dy: -6   // 
   },
   {
     title:"Tazumal (Chalchuapa)",
@@ -354,7 +463,7 @@ const kultur = [
     subtitle:"Ruinenanlage",
     text:"Bekannte Ruinenstätte – zeigt frühe große Siedlungen und Kultur in der Region.",
     imgUrl:"https://upload.wikimedia.org/wikipedia/commons/thumb/9/9b/ES_Tazumal_06_2011_2236.jpg/1200px-ES_Tazumal_06_2011_2236.jpg",
-    dx: 22, dy: 14   // ➡️⬇️ Abstand zu Santa Ana/Westen
+    dx: 22, dy: 14   // ➡️⬇️ Abstand zu Santa Ana
   },
   {
     title:"Ruta de las Flores (Region)",
@@ -363,7 +472,7 @@ const kultur = [
     subtitle:"Kulturroute im Hochland",
     text:"Region/Route mit Dörfern, Märkten, Kaffee und schöner Berglandschaft.",
     imgUrl:"https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQ1T1fDFVIwvvMToRqZWqtLqJJysKt6JfLFWg&s",
-    dx:-40, dy:-12 // ⬅️ etwas stärker nach links/oben (weg von Vulkan-Cluster)
+    dx:-40, dy:-12 // ⬅️ etwas stärker nach links/oben
   }
 ];
 
@@ -384,7 +493,7 @@ const natur = [
     subtitle:"Vulkanischer Kratersee",
     text:"Großer Kratersee – durch vulkanische Prozesse entstanden und landschaftlich sehr beeindruckend.",
     imgUrl:"https://upload.wikimedia.org/wikipedia/commons/d/d0/Teopan.jpg",
-    dx: 35, dy: 20   // ➡️⬇️ weiter weg vom Santa-Ana/Vulkan-Bereich
+    dx: 35, dy: 20   // ➡️⬇️ etwas entfernt vom Santa-Ana/Vulkan-Bereich
   }
 ];
 
@@ -414,7 +523,7 @@ const besondereOrte = [
     subtitle:"Vulkanlandschaft",
     text:"Der Nationalpark Cerro Verde bietet Ausblicke auf mehrere Vulkane und Wanderwege.",
     imgUrl:"https://cf.bstatic.com/xdata/images/hotel/max1024x768/318491098.webp?k=b2067e419d9e605e0c0d266455e9d5b1e3b654cad1001af8066ec704d45ae0ae&o=",
-    dx: 30, dy: 26   // ➡️⬇️ weiter weg von Izalco/Santa Ana Vulkan
+    dx: 30, dy: 26   // ➡️⬇️ etwas entfernt von Izalco/Santa Ana Vulkan
   },
   {
     title:"Nationalpark El Imposible",
@@ -457,7 +566,7 @@ const vulkane = [
     subtitle:"Höchster Vulkan des Landes",
     text:"Der Vulkan Santa Ana ist der höchste Vulkan El Salvadors und besitzt einen Kratersee.",
     imgUrl:"https://betterbeyond.de/wp-content/uploads/2022/03/Santa-Ana-Volcano.jpg",
-    dx: 20, dy: -5   // ➡️ leicht nach rechts/oben (weg vom Cerro Verde Marker)
+    dx: 20, dy: -5   // 
   },
   {
     title: "Vulkan Izalco",
@@ -481,6 +590,15 @@ const vulkane = [
 
 
 // ================= MARKER ERZEUGEN =================
+
+// 12) MARKER AUS DEN DATEN ERZEUGEN
+// forEach, geht jeden Eintrag der Liste durch und erstellt einen Marker.
+
+// ===============================================================
+// SCHRITT 9: Marker erstellen
+// forEach läuft alle Einträge durch und setzt Marker auf die Karte.
+// ===============================================================
+
   staedte.forEach(o => {
     L.marker(o.coords, { icon: makeImageDivIcon(o.iconLocal, 46, o.dx||0, o.dy||0) })
       .addTo(layerStaedte)
@@ -494,7 +612,6 @@ const vulkane = [
   });
 
   natur.forEach(o => {
-    // Natur auch als Bildmarker (hier speziell Lago)
     L.marker(o.coords, { icon: makeImageDivIcon(o.iconLocal, 46, o.dx||0, o.dy||0) })
       .addTo(layerNatur)
       .bindPopup(popupHTML(o));
